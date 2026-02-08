@@ -1,0 +1,6 @@
+@TodoApi = http://localhost:5080/api/v1
+
+GET {{TodoApi}}/todo/
+Accept: application/json
+
+###
