@@ -39,7 +39,7 @@ public static class ConfigureServices
     
     builder.Services.AddOpenApi(options =>
     {
-      options.AddSchemaTransformer((schema, context, cancellationToken) =>
+      options.AddSchemaTransformer((schema, context, _) =>
       {
         schema.Title = context.JsonTypeInfo.Type.FullName;
         return Task.CompletedTask;

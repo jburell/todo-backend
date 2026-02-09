@@ -9,10 +9,11 @@ public class TodoDatabase : ITodoStore
 {
   private readonly List<Todo> _todos = [];
 
-  public Result<Todo[], string> GetAll() => Success<Todo[], string>(_todos.ToArray());
+  public Result<Todo[], string> GetAll() => _todos.ToArray();
 
   public Result<Maybe<Todo>, string> Get(Guid id) =>
-    Try(() => Maybe.From(_todos.Single(x => x.Id == id)), ex => ex)
+    Try(() => _todos.Single(x => x.Id == id), ex => ex)
+      .Map(Maybe.From)
       .Compensate(ex => ex switch
       {
         InvalidOperationException _ => Success<Maybe<Todo>, string>(Maybe.None),
@@ -22,7 +23,7 @@ public class TodoDatabase : ITodoStore
   public Result<Todo, string> AddTodo(Todo todo)
   {
     _todos.Add(todo);
-    return Success<Todo, string>(todo);
+    return todo;
   }
 
   public Result<Maybe<Todo>, string> Update(Todo todo) =>
@@ -39,6 +40,5 @@ public class TodoDatabase : ITodoStore
     return Success();
   }
 
-  public Result<bool, string> Delete(Todo todo) =>
-    _todos.Remove(todo) ? Success<bool, string>(true) : Success<bool, string>(false);
+  public Result<bool, string> Delete(Guid id) => _todos.RemoveAll(x => x.Id.ToString() == id.ToString()) > 0;
 }

@@ -7,8 +7,9 @@ using Todo.Pipelines;
 namespace Todo.Api.Setup;
 
 using static TypedResults;
-using Dto = Domain.Dto;
 using IResult = Microsoft.AspNetCore.Http.IResult;
+using Dto = Pipelines.Dto;
+using Domain = Domain.Objs;
 
 public static class ConfigureEndpoints
 {
@@ -29,7 +30,9 @@ public static class ConfigureEndpoints
           )
         : pipe
           .Get(id)
-          .Map(maybeTodo => maybeTodo.HasValue ? maybeTodo.Value : null)
+          .Map<Maybe<Domain.Todo>, ViewModel.Todo?, string>(maybeTodo => maybeTodo.HasValue 
+            ? ViewModelMapper.ToViewModel(maybeTodo.Value) 
+            : null)
           .Match(
             Ok,
             IResult (_) => InternalServerError("Unknown")))
@@ -51,8 +54,9 @@ public static class ConfigureEndpoints
     root.MapPatch("/", IResult ([FromQuery] string id, [FromBody] Dto.Todo todo) =>
       pipe
         .UpdateTodo(id, todo)
-        .Map(ViewModelMapper.ToViewModel)
-        .Map(maybeTodo => maybeTodo.HasValue ? maybeTodo.Value : null)
+        .Map<Maybe<Domain.Todo>, ViewModel.Todo?, string>(maybeTodo => maybeTodo.HasValue 
+          ? ViewModelMapper.ToViewModel(maybeTodo.Value) 
+          : null)
         .Match(
           Ok,
           IResult (_) => InternalServerError("Unknown")))
@@ -60,14 +64,14 @@ public static class ConfigureEndpoints
       .Produces<ViewModel.Todo>()
       .WithName("Patch Todo");
 
-    root.MapDelete("/", IResult ([FromBody] Dto.Todo? todo) =>
-      todo is null
+    root.MapDelete("/", IResult ([FromQuery] string? id) =>
+      id is null
         ? pipe.DeleteAll()
           .Match(
             Ok,
             IResult (_) => InternalServerError("Unknown"))
         : pipe
-          .Delete(todo)
+          .Delete(id)
           .Match(
             Ok,
             IResult (_) => InternalServerError("Unknown")))

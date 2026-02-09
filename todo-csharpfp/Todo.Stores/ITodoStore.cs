@@ -10,5 +10,5 @@ public interface ITodoStore
   public Result<Todo, string> AddTodo(Todo todo);
   public Result<Maybe<Todo>, string> Update(Todo todo);
   public UnitResult<string> DeleteAll();
-  public Result<bool, string> Delete(Todo todo);
+  public Result<bool, string> Delete(Guid id);
 }

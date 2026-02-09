@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Todo.Stores\Todo.Stores.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Stores\" />
-  </ItemGroup>
-
 </Project>

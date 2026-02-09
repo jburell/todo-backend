@@ -1,4 +1,4 @@
-﻿using Todo.Domain.Dto;
+﻿using Todo.Pipelines.Dto;
 
 namespace Todo.Pipelines;
 
@@ -15,19 +15,18 @@ public class TodoPipelines(ITodoStore store)
     SuccessIf<Guid, string>(Guid.TryParse(id, out var result), result, "Invalid ID format")
       .Bind(store.Get);
 
-  public Result<Todo, string> AddTodo(Domain.Dto.Todo todo) =>
+  public Result<Todo, string> AddTodo(Dto.Todo todo) =>
     todo
       .Validate()
       .Bind(store.AddTodo);
 
-  public Result<Maybe<Todo>, string> UpdateTodo(string id, Domain.Dto.Todo todo) =>
+  public Result<Maybe<Todo>, string> UpdateTodo(string id, Dto.Todo todo) =>
     todo
       .Validate()
       .Bind(store.Update);
 
-  public UnitResult<string> Delete(Domain.Dto.Todo todo) => 
-    todo
-      .Validate()
+  public UnitResult<string> Delete(string id) => 
+    SuccessIf<Guid, string>(Guid.TryParse(id, out var result), result, "Invalid ID format")
       .Bind(store.Delete)
       .Map(_ => Success<string>());
 
